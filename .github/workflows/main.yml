@@ -1,39 +1,28 @@
-name: Deploy Portfolio to S3
+name: Deploy to S3
 
 on:
   push:
-    branches:  main   # Change 'main' to your desired branch for deployment
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Install AWS CLI
-        uses: aws-actions/aws-cli@v2
-        with:
-          aws-version: '2.28.0'
-          region: 'us-east-1'  # Change to your desired AWS region
+    - name: Install AWS CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y awscli
 
-      - name: Configure AWS Credentials (replace with your access key and secret key)
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: Deploy to S3
+      run: |
+        aws s3 sync . s3://portfolio786 --delete --exclude ".git/*"
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: US East (N. Virginia) us-east-1
 
-      - name: Build Portfolio (if needed for your website)
-        # Add commands to build your website here (e.g., npm install, npm run build)
-        # This step depends on your website's build process.
-
-      - name: Upload Portfolio to S3 Bucket
-        run: |
-          aws s3 sync ./ portfolio786/  # Replace 'portfolio786' with your actual bucket name
-          aws s3 website portfolio786 s3://portfolio786/ index.html  # Configure website hosting
-                                                                               # Replace 'portfolio786' with your actual bucket name
-
-      - name: Verify Website Endpoint (optional)
-        run: aws s3 website portfolio786 | grep Endpoint
-        env:
-          AWS_DEFAULT_OUTPUT_FORMAT: 'text'  # Show output in plain text
 
