@@ -11,30 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3  # Updated to v3 for Node.js 20 compatibility
 
-      - name: Install AWS CLI
-        uses: aws-actions/aws-cli@v3
-        with:
-          region: 'us-east-1'  # Change to your desired AWS region
 
       - name: Configure AWS Credentials (replace with your access key and secret key)
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Build Portfolio (if needed for your website)
-        # Add commands to build your website here (e.g., npm install, npm run build)
-        # This step depends on your website's build process.
+      
 
       - name: Upload Portfolio to S3 Bucket
-        run: |
-          aws s3 sync ./ <your_s3_bucket_name>/  # Replace '<your_s3_bucket_name>' with your actual bucket name
-          aws s3 website <your_s3_bucket_name> s3://<your_s3_bucket_name>/ index.html  # Configure website hosting
-                                                                               # Replace '<your_s3_bucket_name>' with your actual bucket name
+        run:
+          aws s3 sync . s3://portfolio786 --delete
 
-      - name: Verify Website Endpoint (optional)
-        run: aws s3 website <your_s3_bucket_name> | grep Endpoint
-        env:
-          AWS_DEFAULT_OUTPUT_FORMAT: 'text'  # Show output in plain text
+
 
 
 
